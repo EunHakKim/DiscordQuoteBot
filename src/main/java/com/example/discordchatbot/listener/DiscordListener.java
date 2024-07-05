@@ -1,7 +1,9 @@
 package com.example.discordchatbot.listener;
 
+import com.example.discordchatbot.dto.JokeDTO;
 import com.example.discordchatbot.dto.QuoteDTO;
-import com.example.discordchatbot.util.QuotesUtil;
+import com.example.discordchatbot.util.JokeUtil;
+import com.example.discordchatbot.util.QuoteUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -9,6 +11,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -30,8 +34,17 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         if (message.getContentDisplay().equals("!명언")) {
-            QuoteDTO quoteDTO = QuotesUtil.requestToQuotesAPI();
+            QuoteDTO quoteDTO = QuoteUtil.requestToQuoteAPI();
             textChannel.sendMessage(quoteDTO.getAuthor() + " - " + quoteDTO.getMessage()).queue();
+        } else if (message.getContentDisplay().equals("!농담")) {
+            JokeDTO jokeDTO = Arrays.asList(JokeUtil.requestToJokeAPI()).get(0);
+            textChannel.sendMessage("Q: " + jokeDTO.getSetup() + "\n5초 뒤에 정답이 출력됩니다.").queue();
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            textChannel.sendMessage("A: " + jokeDTO.getPunchline()).queue();
         }
     }
 }
