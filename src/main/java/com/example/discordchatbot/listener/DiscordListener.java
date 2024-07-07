@@ -9,13 +9,16 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.springframework.stereotype.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Slf4j
-@Component
 public class DiscordListener extends ListenerAdapter {
 
     @Override
@@ -35,7 +38,7 @@ public class DiscordListener extends ListenerAdapter {
 
         if (message.getContentDisplay().equals("!명언")) {
             QuoteDTO quoteDTO = QuoteUtil.requestToQuoteAPI();
-            textChannel.sendMessage(quoteDTO.getAuthor() + " - " + quoteDTO.getMessage()).queue();
+            textChannel.sendMessage(quoteDTO.getMessage() + "   - " + quoteDTO.getAuthor() + "(" + quoteDTO.getAuthorProfile() + ") -").queue();
         } else if (message.getContentDisplay().equals("!농담")) {
             JokeDTO jokeDTO = Arrays.asList(JokeUtil.requestToJokeAPI()).get(0);
             textChannel.sendMessage("Q: " + jokeDTO.getSetup() + "\n5초 뒤에 정답이 출력됩니다.").queue();
@@ -46,5 +49,33 @@ public class DiscordListener extends ListenerAdapter {
             }
             textChannel.sendMessage("A: " + jokeDTO.getPunchline()).queue();
         }
+    }
+
+    @Override
+    public void onReady(@NotNull ReadyEvent event) {
+        super.onReady(event);
+        log.info("DiscordQuoteBot is ready!!");
+
+        List<TextChannel> textChannels = event.getJDA().getTextChannels();
+        for (TextChannel textChannel : textChannels) {
+            if(textChannel != null) {
+                scheduleMessage(textChannel);
+            } else {
+                log.info("채널을 찾을 수 없습니다.");
+            }
+        }
+    }
+
+    private void scheduleMessage(TextChannel textChannel) {
+        new Timer().schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        QuoteDTO quoteDTO = QuoteUtil.requestToQuoteAPI();
+                        textChannel.sendMessage(quoteDTO.getMessage() + "   - " + quoteDTO.getAuthor() + "(" + quoteDTO.getAuthorProfile() + ") -").queue();
+                    }
+                },
+                0, 600000
+        );
     }
 }

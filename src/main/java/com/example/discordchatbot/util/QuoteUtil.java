@@ -1,10 +1,8 @@
 package com.example.discordchatbot.util;
 
 import com.example.discordchatbot.dto.QuoteDTO;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-@Component
 public class QuoteUtil {
     public static QuoteDTO requestToQuoteAPI() {
         RestTemplate restTemplate = new RestTemplate();
