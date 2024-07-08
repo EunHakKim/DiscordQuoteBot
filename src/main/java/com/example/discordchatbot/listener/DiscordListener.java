@@ -41,13 +41,15 @@ public class DiscordListener extends ListenerAdapter {
             textChannel.sendMessage(quoteDTO.getMessage() + "   - " + quoteDTO.getAuthor() + "(" + quoteDTO.getAuthorProfile() + ") -").queue();
         } else if (message.getContentDisplay().equals("!농담")) {
             JokeDTO jokeDTO = Arrays.asList(JokeUtil.requestToJokeAPI()).get(0);
-            textChannel.sendMessage("Q: " + jokeDTO.getSetup() + "\n5초 뒤에 정답이 출력됩니다.").queue();
+            textChannel.sendMessage("Q: " + jokeDTO.getSetup() + "\n3초 뒤에 정답이 출력됩니다.").queue();
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             textChannel.sendMessage("A: " + jokeDTO.getPunchline()).queue();
+        } else if(message.getContentDisplay().equals("!도움말")) {
+            textChannel.sendMessage("저는 일정한 시간마다 명언을 출력하는 명언봇입니다.\n명언이 필요하시면 \"!명언\"을,\n개발자를 위한 농담이 필요하시면 \"!농담\"을 입력해주세요.").queue();
         }
     }
 
@@ -59,6 +61,7 @@ public class DiscordListener extends ListenerAdapter {
         List<TextChannel> textChannels = event.getJDA().getTextChannels();
         for (TextChannel textChannel : textChannels) {
             if(textChannel != null) {
+                textChannel.sendMessage("도움이 필요하시면 \"!도움말\"을 입력해주세요!!").queue();
                 scheduleMessage(textChannel);
             } else {
                 log.info("채널을 찾을 수 없습니다.");
@@ -75,7 +78,7 @@ public class DiscordListener extends ListenerAdapter {
                         textChannel.sendMessage(quoteDTO.getMessage() + "   - " + quoteDTO.getAuthor() + "(" + quoteDTO.getAuthorProfile() + ") -").queue();
                     }
                 },
-                0, 600000
+                30000, 30000
         );
     }
 }

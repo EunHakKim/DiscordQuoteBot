@@ -23,7 +23,7 @@ public class DiscordChatBotApplication {
 		String discordBotToken = discordBotTokenEntity.getDiscordBotToken();
 
 		JDA jda = JDABuilder.createDefault(discordBotToken)
-				.setActivity(Activity.playing("명언 대기중!!"))
+				.setActivity(Activity.playing("명언 대기"))
 				.enableIntents(GatewayIntent.MESSAGE_CONTENT)
 				.addEventListeners(new DiscordListener())
 				.build();
